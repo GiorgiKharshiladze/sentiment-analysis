@@ -11,7 +11,7 @@
 # addExample() and classify() and anything you further invoke from there.
 #
 
-
+from collections import Counter
 import sys
 import getopt
 import os
@@ -36,9 +36,11 @@ class NaiveBayes:
 
   def __init__(self):
     """NaiveBayes initialization"""
-    self.FILTER_STOP_WORDS = False
+    self.FILTER_STOP_WORDS = True
     self.stopList = set(self.readFile('../data/english.stop'))
     self.numFolds = 10
+    self.pos_dict = Counter ()
+    self.neg_dict = Counter ()
 
   #############################################################################
   # TODO TODO TODO TODO TODO
@@ -47,7 +49,22 @@ class NaiveBayes:
     """ TODO
       'words' is a list of words to classify. Return 'pos' or 'neg' classification.
     """
-    return 'pos'
+
+    V = len(set(list(self.pos_dict.keys()) + list(self.neg_dict.keys())))
+    posLen = sum(self.pos_dict.values())
+    negLen = sum(self.neg_dict.values())
+
+    posScore, negScore = math.log(0.5), math.log(0.5)
+
+    for w in words:
+      posScore += math.log( (self.pos_dict[w]+1.) / (posLen + V) )
+      negScore += math.log( (self.neg_dict[w]+1.) / (negLen + V) )
+
+    # print posScore, negScore
+    if posScore > negScore:
+      return 'pos'
+    else:
+      return 'neg'
 
 
   def addExample(self, klass, words):
@@ -59,14 +76,30 @@ class NaiveBayes:
      * in the NaiveBayes class.
      * Returns nothing
     """
-    pass
+
+    for word in words:
+      if klass == 'pos':
+        self.pos_dict[word] += 1
+
+      elif klass == 'neg':
+        self.neg_dict[word] += 1
+
+    
 
   def filterStopWords(self, words):
     """
     * TODO
     * Filters stop words found in self.stopList.
     """
-    return words
+
+    output = [] 
+    for word in words:
+      if word in self.stopList or word.strip() == '':
+        pass
+      else:
+        output.append(word)
+
+    return output
 
   # TODO TODO TODO TODO TODO
   #############################################################################
