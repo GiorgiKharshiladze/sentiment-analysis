@@ -11,7 +11,7 @@
 # addExample() and classify() and anything you further invoke from there.
 #
 
-from collections import Counter
+from collections import defaultdict
 import sys
 import getopt
 import os
@@ -39,8 +39,8 @@ class NaiveBayes:
     self.FILTER_STOP_WORDS = False
     self.stopList = set(self.readFile('../data/english.stop'))
     self.numFolds = 10
-    self.pos_dict = Counter ()
-    self.neg_dict = Counter ()
+    self.pos_dict = defaultdict(int)
+    self.neg_dict = defaultdict(int)
 
   #############################################################################
   # TODO TODO TODO TODO TODO
@@ -57,9 +57,7 @@ class NaiveBayes:
     posScore, negScore = math.log(0.5), math.log(0.5)
 
     for w in words:
-      # if w in self.pos_dict.keys():
       posScore += math.log( (self.pos_dict[w]+1.) / (posLen + V) )
-      # elif w in self.neg_dict.keys():
       negScore += math.log( (self.neg_dict[w]+1.) / (negLen + V) )
 
     # print posScore, negScore
@@ -81,11 +79,9 @@ class NaiveBayes:
 
     for word in words:
       if klass == 'pos':
-        # if word in self.pos_dict.keys():
         self.pos_dict[word] += 1
 
       elif klass == 'neg':
-        # if word in self.neg_dict.keys():
         self.neg_dict[word] += 1
 
     
