@@ -54,7 +54,8 @@ class NaiveBayes:
     posLen = sum(self.pos_dict.values())
     negLen = sum(self.neg_dict.values())
 
-    posScore, negScore = math.log(0.5), math.log(0.5)
+    posScore = math.log(0.5)
+    negScore = math.log(0.5)
 
     for w in words:
       posScore += math.log( (self.pos_dict[w]+1.) / (posLen + V) )
