@@ -322,12 +322,22 @@ def main():
       options = [('','')]
       args = ['../data/imdb1/']
   else:
-      (options, args) = getopt.getopt(sys.argv[1:], 'f')
-  if ('-f','') in options:
+      # (options, args) = getopt.getopt(sys.argv[1:], 'f')
+      options = []
+      args = []
+      args.append(sys.argv[-1])
+      flags = sys.argv[1:-1]
+
+      for flag in flags:
+        options.append((flag, ''))
+
+  if ('-f', '') in options:
     nb.FILTER_STOP_WORDS = True
-  if ('-n','') in options:
+
+  if ('-n', '') in options:
     nb.NEGATION = True
-  if ('-b','') in options:
+
+  if ('-b', '') in options:
     nb.BOOLEAN = True
 
   splits = nb.buildSplits(args)
