@@ -11,6 +11,10 @@
 # addExample() and classify() and anything you further invoke from there.
 #
 
+# Command line arguments for calling negation, boolean and stopword
+# boolean needs to be added in the init of naiveBayes
+# 
+
 from collections import defaultdict
 import sys
 import getopt
@@ -39,8 +43,14 @@ class NaiveBayes:
     self.FILTER_STOP_WORDS = False
     self.stopList = set(self.readFile('../data/english.stop'))
     self.numFolds = 10
+
+    # Using the defaultdict data structure to store pos/neg words and their observed frequencies. 
     self.pos_dict = defaultdict(int)
     self.neg_dict = defaultdict(int)
+
+    #Option to negate words.
+    self.NEGATION = True
+    self.BOOLEAN  = True
 
   #############################################################################
   # TODO TODO TODO TODO TODO
@@ -49,22 +59,37 @@ class NaiveBayes:
     """ TODO
       'words' is a list of words to classify. Return 'pos' or 'neg' classification.
     """
+    pos_count = 0 
+    neg_count = 0 
 
-    V = len(set(list(self.pos_dict.keys()) + list(self.neg_dict.keys())))
-    posLen = sum(self.pos_dict.values())
-    negLen = sum(self.neg_dict.values())
+    # Determining the length of the overall vocabulary set (no duplicates).  
+    all_words = list(self.pos_dict.keys()) + list(self.neg_dict.keys())
+    unique_words = set(all_words)
+    V = len(unique_words) 
+
+    # Initial positive and negative counts.  
+    for val in self.pos_dict.values():
+      pos_count += val 
+
+    for val in self.neg_dict.values():
+      neg_count += val 
+
+    # Using logarithmic transformations to get probabilities; these are the initial yes or no probabilities. 
+    p_pos = math.log(pos_count / (pos_count + neg_count))
+    p_neg = math.log(neg_count / (pos_count +neg_count))
 
     posScore = math.log(0.5)
     negScore = math.log(0.5)
 
+    #For the new word, use the mutinomial naive baye's formula. Log transformation since log(xy) = logx + logy. 
     for w in words:
-      posScore += math.log( (self.pos_dict[w]+1.) / (posLen + V) )
-      negScore += math.log( (self.neg_dict[w]+1.) / (negLen + V) )
+      p_pos += math.log(int(self.pos_dict[w]+1) / (pos_count + abs(V)))
+      p_neg += math.log(int((self.neg_dict[w]+1)) / (neg_count + abs(V)))
 
-    # print posScore, negScore
-    if posScore > negScore:
+    # The higher probability determines the classification returned. 
+    if p_pos > p_neg:
       return 'pos'
-    else:
+    elif p_neg > p_pos:
       return 'neg'
 
 
@@ -77,15 +102,17 @@ class NaiveBayes:
      * in the NaiveBayes class.
      * Returns nothing
     """
+    # This makes it boolean
+    wordSet = set(words)
 
-    for word in words:
+    for word in wordSet:
       if klass == 'pos':
         self.pos_dict[word] += 1
 
       elif klass == 'neg':
         self.neg_dict[word] += 1
 
-    
+  
 
   def filterStopWords(self, words):
     """
@@ -93,14 +120,40 @@ class NaiveBayes:
     * Filters stop words found in self.stopList.
     """
 
-    output = [] 
+    # print (words)
     for word in words:
-      if word in self.stopList or word.strip() == '':
-        pass
-      else:
-        output.append(word)
+      if word in self.stopList:
+        words.remove(word)
 
-    return output
+    return words
+
+  def negation(self, words):
+    negation_words = ['Never', 'Not', 'never', 'not']
+    punctuation_stop = ['.','?','!']
+    punctuation_ignore = [' ', ',', ';', ':', '(', ')', '{', '}', '[', ']']
+
+    for i in range (len(words)):
+
+        # If the previous word is in the negation list, add NOT_ to this current word. 
+        if words[i-1] in negation_words and words[i-1] not in punctuation_stop and words[i] not in punctuation_ignore and words[i] not in punctuation_stop:
+          words[i] = 'NOT_' + words[i]
+
+        # If the previous word ends with "n't", then add NOT_ to it. 
+        if len(words[i-1]) > 3 and words[i-1][-3] == 'n' and words[i-1][-1] == 't' and words[i-1] not in punctuation_stop and words[i] not in punctuation_ignore and words[i] not in punctuation_stop:
+          words[i] = 'NOT_' + words[i]
+
+        # If the the previous word already starts with "NOT_", then add NOT_ to it, unless it's punctuation. 
+        if len(words[i-1]) >=3 and words[i-1][0] == 'N' and words[i-1][1] == 'O' and words[i-1][2] == 'T':
+          if words[i] not in punctuation_stop and words[i] not in punctuation_ignore:
+            words[i] = 'NOT_' + words[i]
+
+        # If the previous word was a non stoping punctuation, then check the word before that for NOT_. If it has it, then add to the current word. 
+        if words[i-1] in punctuation_ignore:
+          if words[i-2] in negation_words or len(words[i-2]) >=3 and words[i-2][0] == 'N' and words[i-2][1] == 'O' and words[i-2][2] == 'T':
+            words[i] = 'NOT_' + words[i]
+
+    return words
+
 
   # TODO TODO TODO TODO TODO
   #############################################################################
@@ -276,11 +329,16 @@ def main():
       if nb.FILTER_STOP_WORDS:
         words =  classifier.filterStopWords(words)
       classifier.addExample(example.klass, words)
+      if nb.NEGATION:
+        words = classifier.negation(words)
+      classifier.addExample(example.klass, words)
 
     for example in split.test:
       words = example.words
       if nb.FILTER_STOP_WORDS:
         words =  classifier.filterStopWords(words)
+      if nb.NEGATION:
+        words = classifier.negation(words)
       guess = classifier.classify(words)
       if example.klass == guess:
         accuracy += 1.0
