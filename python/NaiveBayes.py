@@ -333,14 +333,20 @@ def main():
 
   # python3 NaiveBayes.py -{FLAG_NAME} ../data/imdb1
 
+  print("================================================================================")
   if ('-f', '') in options:
+    print("===== USING FILTER_STOP_WORDS:")
     nb.FILTER_STOP_WORDS = True
 
   if ('-n', '') in options:
+    print("===== USING NEGATION:")
     nb.NEGATION = True
 
   if ('-b', '') in options:
+    print("===== USING BOOLEAN - True:")
     nb.BOOLEAN = True
+
+  print("================================================================================")
 
   splits = nb.buildSplits(args)
   avgAccuracy = 0.0
