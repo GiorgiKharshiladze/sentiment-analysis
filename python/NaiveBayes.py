@@ -49,8 +49,10 @@ class NaiveBayes:
     self.neg_dict = defaultdict(int)
 
     #Option to negate words.
-    self.NEGATION = True
-    self.BOOLEAN  = True
+    self.NEGATION = False
+
+    #Option for boolean
+    self.BOOLEAN  = False
 
   #############################################################################
   # TODO TODO TODO TODO TODO
@@ -92,6 +94,13 @@ class NaiveBayes:
     elif p_neg > p_pos:
       return 'neg'
 
+  def isBool(self, words):
+    
+    if self.BOOLEAN == True:
+      words = set(words)
+
+    return words
+
 
   def addExample(self, klass, words):
     """
@@ -102,17 +111,16 @@ class NaiveBayes:
      * in the NaiveBayes class.
      * Returns nothing
     """
-    # This makes it boolean
-    wordSet = set(words)
+    # This makes it true/false
 
-    for word in wordSet:
+    words = isBool(self, words)
+
+    for word in words:
       if klass == 'pos':
         self.pos_dict[word] += 1
 
       elif klass == 'neg':
         self.neg_dict[word] += 1
-
-  
 
   def filterStopWords(self, words):
     """
@@ -317,6 +325,10 @@ def main():
       (options, args) = getopt.getopt(sys.argv[1:], 'f')
   if ('-f','') in options:
     nb.FILTER_STOP_WORDS = True
+  if ('-n','') in options:
+    nb.NEGATION = True
+  if ('-b','') in options:
+    nb.BOOLEAN = True
 
   splits = nb.buildSplits(args)
   avgAccuracy = 0.0
