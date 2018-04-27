@@ -1,6 +1,6 @@
-# NLP Programming Assignment #3
-# NaiveBayes
-# 2012
+# Students: Giorgi Kharshiladze, Abhinav Pandey
+# CS365: Artificial Intelligence and Machine Learning
+# Lab E: Sentiment Analysis
 
 #
 # The area for you to implement is marked with TODO!
