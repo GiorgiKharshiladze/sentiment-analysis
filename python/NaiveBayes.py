@@ -113,7 +113,7 @@ class NaiveBayes:
     """
     # This makes it true/false
 
-    words = isBool(self, words)
+    words = self.isBool(words)
 
     for word in words:
       if klass == 'pos':
