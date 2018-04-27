@@ -331,6 +331,8 @@ def main():
       for flag in flags:
         options.append((flag, ''))
 
+  # python3 NaiveBayes.py -{FLAG_NAME} ../data/imdb1
+
   if ('-f', '') in options:
     nb.FILTER_STOP_WORDS = True
 
