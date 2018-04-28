@@ -80,9 +80,6 @@ class NaiveBayes:
     p_pos = math.log(pos_count / (pos_count + neg_count))
     p_neg = math.log(neg_count / (pos_count +neg_count))
 
-    posScore = math.log(0.5)
-    negScore = math.log(0.5)
-
     #For the new word, use the mutinomial naive baye's formula. Log transformation since log(xy) = logx + logy. 
     for w in words:
       p_pos += math.log(int(self.pos_dict[w]+1) / (pos_count + abs(V)))
