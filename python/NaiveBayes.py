@@ -78,7 +78,7 @@ class NaiveBayes:
 
     # Using logarithmic transformations to get probabilities; these are the initial yes or no probabilities. 
     p_pos = math.log(pos_count / (pos_count + neg_count))
-    p_neg = math.log(neg_count / (pos_count +neg_count))
+    p_neg = math.log(neg_count / (pos_count + neg_count))
 
     #For the new word, use the mutinomial naive baye's formula. Log transformation since log(xy) = logx + logy. 
     for w in words:
